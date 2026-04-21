@@ -568,6 +568,27 @@ const TIERS = [
   { min: 3000, max: null, price: 2.52 },
 ];
 const SLEEVE_UPCHARGE = 0.20;
+const SHOPIFY_STORE = "56457c.myshopify.com";
+
+const VARIANT_MAP = {
+  "50-99 units":       "51673297256744",
+  "100-199 units":     "51673309643048",
+  "200-499 units":     "51673310265640",
+  "500-999 units":     "51673311215912",
+  "1,000-1,999 units": "51673311314216",
+  "2,000-2,999 units": "51673311346984",
+  "3,000+ units":      "51673311510824",
+};
+
+function getVariantIdForQty(qty) {
+  if (qty >= 3000) return VARIANT_MAP["3,000+ units"];
+  if (qty >= 2000) return VARIANT_MAP["2,000-2,999 units"];
+  if (qty >= 1000) return VARIANT_MAP["1,000-1,999 units"];
+  if (qty >= 500)  return VARIANT_MAP["500-999 units"];
+  if (qty >= 200)  return VARIANT_MAP["200-499 units"];
+  if (qty >= 100)  return VARIANT_MAP["100-199 units"];
+  return VARIANT_MAP["50-99 units"];
+}
 
 let state = {
   frontArt: null,
@@ -990,15 +1011,62 @@ function updateSummary() {
 }
 
 function placeOrder() {
-  const tier = getTier(state.quantity);
-  const sleeveAmt = state.hasSleeve ? state.quantity * SLEEVE_UPCHARGE : 0;
-  const total = (tier.price * state.quantity) + sleeveAmt;
-  const linkDesc = state.bandcampMode === 'csv'
-    ? (state.bandcampURLs.length > 0 ? `${state.bandcampURLs.length} Bandcamp codes pre-loaded` : 'No download links')
-    : (state.altURL ? `All Goodz link to: ${state.altURL}` : '');
-  document.getElementById('success-detail').textContent =
-    `${state.quantity} Goodz · $${total.toFixed(2)} total${linkDesc ? ` · ${linkDesc}` : ''}`;
-  goToStep('success');
+  const variantId = getVariantIdForQty(state.quantity);
+
+  // Build cart line item properties
+  const properties = {};
+  if (state.hasSleeve) {
+    properties["_sleeve"] = "yes";
+    properties["Sleeve"] = "Yes (+$0.20/unit sleeve surcharge)";
+  }
+  if (state.bandcampMode === "csv" && state.bandcampURLs.length > 0) {
+    properties["_bandcamp_mode"] = "csv";
+    properties["Bandcamp Codes"] = `${state.bandcampURLs.length} codes (uploaded)`;
+    properties["_bandcamp_preview"] = state.bandcampURLs.slice(0, 5).join(", ");
+  } else if (state.bandcampMode === "url" && state.altURL) {
+    properties["_bandcamp_mode"] = "url";
+    properties["Download URL"] = state.altURL;
+  }
+
+  // If CSV mode: one line item per code; else: one line item with qty
+  let items;
+  if (state.bandcampMode === "csv" && state.bandcampURLs.length > 0) {
+    items = state.bandcampURLs.slice(0, state.quantity).map(url => ({
+      id: parseInt(variantId),
+      quantity: 1,
+      properties: { ...properties, "_bandcamp_url": url }
+    }));
+  } else {
+    items = [{ id: parseInt(variantId), quantity: state.quantity, properties }];
+  }
+
+  // Show loading state on button
+  const btn = document.getElementById("btn-order");
+  btn.textContent = "Adding to cart…";
+  btn.disabled = true;
+
+  fetch(`https://${SHOPIFY_STORE}/cart/add.js`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ items })
+  })
+  .then(res => {
+    if (!res.ok) throw new Error("Cart failed");
+    // Redirect to Shopify checkout
+    window.location.href = `https://${SHOPIFY_STORE}/checkout`;
+  })
+  .catch(err => {
+    console.error(err);
+    btn.textContent = "Place Order";
+    btn.disabled = false;
+    const warnEl = document.getElementById("summary-warning");
+    warnEl.style.display = "block";
+    warnEl.style.background = "#fef2f2";
+    warnEl.style.borderColor = "#fecaca";
+    warnEl.style.color = "#dc2626";
+    warnEl.textContent = "Could not connect to Shopify. Please try again or contact us directly.";
+  });
 }
 
 function resetBuilder() {
