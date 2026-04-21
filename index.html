@@ -98,6 +98,7 @@
 
     .card.has-art { background: transparent; }
     .card-placeholder-text { font-size: 0.6rem; color: #666; text-align: center; line-height: 1.4; }
+    .zone-guide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; opacity: 0.4; border-radius: inherit; }
     .card-art { width: 100%; height: 100%; object-fit: cover; }
 
     .sleeve-wrap {
@@ -278,20 +279,12 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .step-subtitle { font-size: 0.9rem; color: #777; margin-bottom: 1rem; line-height: 1.6; }
 
-    .crop-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; }
-    .crop-modal-title { color: #fff; font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; text-align: center; line-height: 1.5; }
-    .crop-modal-sub { color: rgba(255,255,255,0.6); font-size: 0.8rem; margin-bottom: 1.25rem; text-align: center; }
-    .crop-container { position: relative; max-width: 320px; max-height: 320px; width: 100%; aspect-ratio: 1; border-radius: 12px; overflow: visible; cursor: default; user-select: none; box-shadow: 0 0 0 3px #E86900; }
-    .crop-template { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; z-index: 1; }
-    .crop-art-wrap { position: absolute; overflow: hidden; z-index: 2; /* clip-path used for precise area, see JS */ }
-    .crop-art { position: absolute; width: 100%; height: 100%; object-fit: cover; }
-    .crop-dark-overlay { display: none; }
-    .crop-dark-top    { position: absolute; left: 0; right: 0; background: rgba(0,0,0,0.68); pointer-events: none; z-index: 3; }
-    .crop-dark-bottom { position: absolute; left: 0; right: 0; background: rgba(0,0,0,0.68); pointer-events: none; z-index: 3; }
-    .crop-dark-left   { position: absolute; background: rgba(0,0,0,0.68); pointer-events: none; z-index: 3; }
-    .crop-dark-right  { position: absolute; background: rgba(0,0,0,0.68); pointer-events: none; z-index: 3; }
-    .crop-frame { position: absolute; border: 2px solid #fff; border-radius: 8px; box-shadow: 0 0 0 1px rgba(0,0,0,0.3), 0 0 12px rgba(0,0,0,0.5); cursor: move; box-sizing: border-box; z-index: 5; background: transparent; overflow: visible; }
-    .crop-frame::before { content: ''; position: absolute; inset: -8px; z-index: -1; } /* enlarges hit area for move
+    .crop-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; }
+    .crop-modal-title { color: #fff; font-size: 1rem; font-weight: 600; margin-bottom: 1rem; text-align: center; }
+    .crop-container { position: relative; max-width: 320px; max-height: 320px; width: 100%; aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: default; user-select: none; background: #000; }
+    .crop-container img { width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; }
+    .crop-bleed { position: absolute; inset: 0; background: linear-gradient(to right, rgba(0,0,0,0.55) 0%, transparent 15%, transparent 85%, rgba(0,0,0,0.55) 100%), linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 15%, transparent 85%, rgba(0,0,0,0.55) 100%); pointer-events: none; }
+    .crop-frame { position: absolute; border: 2px solid #fff; border-radius: 8px; box-shadow: 0 0 0 1px rgba(0,0,0,0.3); cursor: move; box-sizing: border-box; }
     .crop-handle { position: absolute; width: 10px; height: 10px; background: #fff; border-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.4); }
     .crop-handle.tl { top: -4px; left: -4px; cursor: nw-resize; }
     .crop-handle.tr { top: -4px; right: -4px; cursor: ne-resize; }
@@ -322,6 +315,7 @@
           <div id="card-placeholder" class="card-placeholder-text">CARD FACE<br><span style="color:#555">Upload art →</span></div>
           <img id="card-art" class="card-art" style="display:none" src="" alt="Card face">
         </div>
+        <img id="zone-guide" class="zone-guide" src="card-template.png" alt="" style="display:none">
       </div>
 
       <div id="sleeve-wrap" class="sleeve-wrap" style="display:none">
@@ -547,21 +541,10 @@
 
 <!-- CROP MODAL -->
 <div id="crop-modal" class="crop-modal-overlay" style="display:none">
-  <div class="crop-modal-title">Position your artwork inside the safe zone</div>
-  <div class="crop-modal-sub">The white area is your safe print area · Pink is bleed · Red is the cut line</div>
+  <div class="crop-modal-title">Position your artwork — drag the corners to crop</div>
   <div class="crop-container" id="crop-container">
-    <!-- Template guide: shows red cut line, pink bleed, white safe zone -->
-    <img id="crop-template" class="crop-template" src="card-template.png" alt="Template guide">
-    <!-- User's uploaded image, clipped to the crop frame area -->
-    <div class="crop-art-wrap" id="crop-art-wrap">
-      <img id="crop-art" class="crop-art" src="" alt="Your artwork">
-    </div>
-    <!-- Dark overlay: 4 divs framing the crop box, leaving it transparent -->
-    <div id="crop-dark-top"    class="crop-dark-top"></div>
-    <div id="crop-dark-bottom" class="crop-dark-bottom"></div>
-    <div id="crop-dark-left"   class="crop-dark-left"></div>
-    <div id="crop-dark-right"  class="crop-dark-right"></div>
-    <!-- Crop frame: draggable, rounded corners, represents safe zone -->
+    <img id="crop-img" src="" alt="Crop preview">
+    <div class="crop-bleed"></div>
     <div class="crop-frame" id="crop-frame">
       <div class="crop-handle tl" data-corner="tl"></div>
       <div class="crop-handle tr" data-corner="tr"></div>
@@ -569,7 +552,6 @@
       <div class="crop-handle br" data-corner="br"></div>
     </div>
   </div>
-  <div class="crop-hint">Drag corners to resize · Drag center to move · Only the white area will print</div>
   <div class="crop-actions">
     <button class="crop-btn crop-btn-cancel" onclick="closeCropModal()">Cancel</button>
     <button class="crop-btn crop-btn-apply" onclick="applyCrop()">Apply Crop</button>
@@ -887,6 +869,7 @@ function updateCardPreview() {
     art.style.display = 'block';
     placeholder.style.display = 'none';
     card.classList.add('has-art');
+    document.getElementById('zone-guide').style.display = 'block';
     hint.textContent = state.hasSleeve ? 'Goodz + sleeve ready' : 'Goodz ready';
     if (state.hasSleeve) {
       const peekArt = document.getElementById('sleeve-card-art');
@@ -897,6 +880,7 @@ function updateCardPreview() {
     art.style.display = 'none';
     placeholder.style.display = 'flex';
     card.classList.remove('has-art');
+    document.getElementById('zone-guide').style.display = 'none';
     hint.textContent = 'Upload album art to preview';
     if (state.hasSleeve) {
       const peekArt = document.getElementById('sleeve-card-art');
@@ -1164,45 +1148,14 @@ function initCropModal() {
 
 function renderCropFrame() {
   const frame = document.getElementById('crop-frame');
-  const artWrap = document.getElementById('crop-art-wrap');
-  const cont = document.getElementById('crop-container');
-  const contSize = Math.min(cont.clientWidth, cont.clientHeight);
-
   frame.style.left = cropBox.x + 'px';
   frame.style.top = cropBox.y + 'px';
   frame.style.width = cropBox.size + 'px';
   frame.style.height = cropBox.size + 'px';
-
-  // Clip the uploaded art to exactly the crop frame area
-  artWrap.style.left = cropBox.x + 'px';
-  artWrap.style.top = cropBox.y + 'px';
-  artWrap.style.width = cropBox.size + 'px';
-  artWrap.style.height = cropBox.size + 'px';
-
-  // Position the 4 dark overlay divs to frame the crop box
-  const top    = document.getElementById('crop-dark-top');
-  const bottom = document.getElementById('crop-dark-bottom');
-  const left   = document.getElementById('crop-dark-left');
-  const right  = document.getElementById('crop-dark-right');
-
-  top.style.top = '0';
-  top.style.height = cropBox.y + 'px';
-
-  bottom.style.top = (cropBox.y + cropBox.size) + 'px';
-  bottom.style.bottom = '0';
-
-  left.style.top = cropBox.y + 'px';
-  left.style.width = cropBox.x + 'px';
-  left.style.height = cropBox.size + 'px';
-
-  right.style.top = cropBox.y + 'px';
-  right.style.left = (cropBox.x + cropBox.size) + 'px';
-  right.style.right = '0';
-  right.style.height = cropBox.size + 'px';
 }
 
 function openCropModal(src) {
-  document.getElementById('crop-art').src = src;
+  document.getElementById('crop-img').src = src;
   document.getElementById('crop-modal').style.display = 'flex';
   const cont = document.getElementById('crop-container');
   const contSize = Math.min(cont.clientWidth, cont.clientHeight);
@@ -1215,7 +1168,7 @@ function closeCropModal() {
 }
 
 function applyCrop() {
-  const img = document.getElementById('crop-art');
+  const img = document.getElementById('crop-img');
   const cont = document.getElementById('crop-container');
   const contSize = Math.min(cont.clientWidth, cont.clientHeight);
   const scaleX = img.naturalWidth / contSize;
