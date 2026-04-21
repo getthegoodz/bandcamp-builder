@@ -56,6 +56,8 @@
 
     @media (max-width: 768px) {
       .layout { grid-template-columns: 1fr; padding: 1rem; }
+      .preview-panel { order: 2; position: static; }
+      .config-panel { order: 1; }
     }
 
     .preview-panel { position: sticky; top: 2rem; }
@@ -302,7 +304,6 @@
 </div>
 
 <div class="layout">
-  <!-- LEFT: Preview -->
   <div class="preview-panel">
     <div class="goodz-preview">
       <div class="preview-label">Live Preview</div>
@@ -332,7 +333,6 @@
     <div id="status-codes" class="status-info" style="display:none"></div>
   </div>
 
-  <!-- RIGHT: Configurator -->
   <div class="config-panel">
 
     <!-- Step indicator -->
