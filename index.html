@@ -576,14 +576,13 @@ const CLOUDINARY_UPLOAD_PRESET = "goodz_uploads";
 
 // ── Cloudinary upload ────────────────────────────────────────────────────────
 function uploadToCloudinary(dataUrl, resourceType = 'image') {
+  const formData = new FormData();
+  formData.append('file', dataUrl);
+  formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+  formData.append('folder', 'goodz');
   return fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/${resourceType}/upload`, {
     method: 'POST',
-    body: JSON.stringify({
-      file: dataUrl,
-      upload_preset: CLOUDINARY_UPLOAD_PRESET,
-      folder: 'goodz',
-    }),
-    headers: { 'Content-Type': 'application/json' },
+    body: formData,
   }).then(r => r.json()).then(d => {
     if (d.error) throw new Error(d.error.message);
     return d.secure_url;
@@ -1244,7 +1243,8 @@ function applyCrop() {
     state.uploadingArt = false;
     updatePlaceOrderButton();
   }).catch(err => {
-    console.warn('Cloudinary art upload failed:', err);
+    console.warn('Cloudinary art upload failed (keeping base64):', err);
+    // Keep state.frontArt as the base64 data URL — the API accepts it
     state.uploadingArt = false;
     updatePlaceOrderButton();
   });
