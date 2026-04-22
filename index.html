@@ -705,7 +705,7 @@ function handleFrontFile(file) {
       canvas.toBlob(blob => {
         if (!blob) return;
         const formData = new FormData();
-        formData.append('file', blob, 'artwork.png');
+        formData.append('file', blob, 'art_${Date.now()}.png');
         formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
         formData.append('folder', 'goodz');
         fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
@@ -1000,7 +1000,7 @@ function updateStepButtons() {
     btn.textContent = 'Uploading CSV…';
   } else {
     btn.textContent = hasCodes
-      ? `Proceed to Checkout → — $${total.toFixed(2)}`
+      ? `Proceed to Checkout → $${total.toFixed(2)}`
       : 'Proceed to Checkout →';
   }
 
@@ -1077,7 +1077,7 @@ function updateSummary() {
 
 function placeOrder() {
   const btn = document.getElementById("btn-order");
-  btn.textContent = "Placing order…";
+  btn.textContent = "Preparing your order…";
   btn.disabled = true;
 
   const payload = {
