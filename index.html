@@ -56,7 +56,7 @@
 
     @media (max-width: 768px) {
       .layout { grid-template-columns: 1fr; padding: 1rem; }
-      .preview-panel { order: 2; position: static; }
+      .preview-panel { order: -1; position: static; }
       .config-panel { order: 1; }
     }
 
@@ -98,7 +98,7 @@
 
     .card.has-art { background: transparent; }
     .card-placeholder-text { font-size: 0.6rem; color: #666; text-align: center; line-height: 1.4; }
-    .zone-guide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; z-index: 10; opacity: 0.4; border-radius: inherit; }
+    .zone-guide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; z-index: 10; opacity: 0.65; border-radius: inherit; }
     .card-art { width: 100%; height: 100%; object-fit: cover; }
 
     .sleeve-wrap {
@@ -164,9 +164,16 @@
     .config-panel h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 0.25rem; }
     .config-panel > p { color: #666; font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.6; }
 
-    .step-bar { display: flex; gap: 0.25rem; margin-bottom: 2rem; }
-    .step-segment { flex: 1; height: 4px; border-radius: 2px; background: #e5e5e5; transition: background 0.2s; }
+    .step-bar-wrapper { margin-bottom: 1.75rem; }
+    .step-bar { display: flex; gap: 0.25rem; margin-bottom: 0.4rem; }
+    .step-segment { flex: 1; height: 4px; border-radius: 2px; background: #e5e5e5; transition: background 0.2s; cursor: default; }
     .step-segment.done, .step-segment.active { background: var(--orange); }
+    .step-segment.done { cursor: pointer; }
+    .step-labels { display: flex; }
+    .step-labels span { flex: 1; text-align: center; font-size: 0.62rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #bbb; transition: color 0.2s; }
+    .step-labels span.done { color: var(--orange); cursor: pointer; }
+    .step-labels span.done:hover { text-decoration: underline; }
+    .step-labels span.active { color: #1a1a1a; }
 
     .upload-grid { display: flex; gap: 2rem; flex-wrap: wrap; }
     .upload-box { flex: 1 1 200px; min-width: 180px; }
@@ -195,8 +202,9 @@
     .drop-zone-text { font-size: 0.8rem; color: #999; line-height: 1.5; }
     .drop-zone-text span { color: var(--orange); }
     .artwork-req { font-size: 0.65rem; color: #bbb; margin-top: 0.5rem; line-height: 1.4; }
+    .drop-zone-req-banner { background: var(--orange); color: #fff; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em; padding: 0.3rem 0.6rem; border-radius: 4px; margin-bottom: 0.5rem; text-align: center; }
     .drop-zone img { width: 100%; height: 100%; object-fit: cover; }
-    .safe-area-label { position: absolute; top: 8px; left: 8px; font-size: 0.55rem; color: #bbb; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; pointer-events: none; }
+    /* safe-area-label removed */
     .file-input { display: none; }
     .file-name { margin-top: 0.5rem; font-size: 0.75rem; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .img-delete-btn { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 50%; background: rgba(0,0,0,0.55); border: none; color: #fff; font-size: 14px; line-height: 24px; text-align: center; cursor: pointer; z-index: 10; }
@@ -279,22 +287,11 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .step-subtitle { font-size: 0.9rem; color: #777; margin-bottom: 1rem; line-height: 1.6; }
 
-    .crop-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; }
-    .crop-modal-title { color: #fff; font-size: 1rem; font-weight: 600; margin-bottom: 1rem; text-align: center; }
-    .crop-container { position: relative; max-width: 320px; max-height: 320px; width: 100%; aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: default; user-select: none; background: #000; }
-    .crop-container img { width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; }
-    .crop-bleed { position: absolute; inset: 0; background: linear-gradient(to right, rgba(0,0,0,0.55) 0%, transparent 15%, transparent 85%, rgba(0,0,0,0.55) 100%), linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 15%, transparent 85%, rgba(0,0,0,0.55) 100%); pointer-events: none; }
-    .crop-frame { position: absolute; border: 2px solid #fff; border-radius: 8px; box-shadow: 0 0 0 1px rgba(0,0,0,0.3); cursor: move; box-sizing: border-box; }
-    .crop-handle { position: absolute; width: 10px; height: 10px; background: #fff; border-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.4); }
-    .crop-handle.tl { top: -4px; left: -4px; cursor: nw-resize; }
-    .crop-handle.tr { top: -4px; right: -4px; cursor: ne-resize; }
-    .crop-handle.bl { bottom: -4px; left: -4px; cursor: sw-resize; }
-    .crop-handle.br { bottom: -4px; right: -4px; cursor: se-resize; }
-    .crop-hint { font-size: 0.7rem; color: rgba(255,255,255,0.6); margin-top: 0.5rem; text-align: center; }
-    .crop-actions { display: flex; gap: 1rem; margin-top: 1.5rem; }
-    .crop-btn { padding: 0.7rem 1.5rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; }
-    .crop-btn-cancel { background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.4); }
-    .crop-btn-apply { background: var(--orange); color: #fff; border: none; }
+    /* crop modal CSS removed */
+    .sleeve-review-row { margin-bottom: 1.25rem; padding: 1rem; background: var(--orange-light); border: 2px solid var(--orange); border-radius: 10px; }
+    .sleeve-checkbox-label { display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+    .sleeve-checkbox-label input[type=checkbox] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--orange); }
+    .sleeve-checkbox-sub { font-size: 0.78rem; color: #666; font-weight: 400; margin-top: 0.25rem; margin-left: 1.7rem; }
   </style>
 </head>
 <body>
@@ -312,7 +309,7 @@
 
       <div id="card-wrap">
         <div class="card" id="card">
-          <div id="card-placeholder" class="card-placeholder-text">CARD FACE<br><span style="color:#555">Upload art →</span></div>
+          <div id="card-placeholder" class="card-placeholder-text">Your art will appear here<br><span style="color:#555">Upload art →</span></div>
           <img id="card-art" class="card-art" style="display:none" src="" alt="Card face">
           <img id="zone-guide" class="zone-guide" src="card-template.png" alt="" style="display:none">
         </div>
@@ -330,7 +327,7 @@
       </div>
 
       <div class="preview-hint" id="preview-hint">Upload album art to preview</div>
-      <div id="print-explanation" class="print-explanation" style="display:none;font-size:0.65rem;color:#999;line-height:1.5;max-width:200px;text-align:center;margin-top:0.5rem;">The red line shows the outer edge of your Goodz. Keep all important print elements out of the pink "safe zone," an area 1.5 mm away from the interior edge of the cut/die line.</div>
+      <div id="print-explanation" class="print-explanation" style="display:none;font-size:0.65rem;color:#999;line-height:1.5;max-width:200px;text-align:center;margin-top:0.5rem;">The red line shows the outer edge (bleed zone) of your Goodz. Keep all important elements inside the white area — at least 1.5 mm away from the edge.</div>
     </div>
 
     <div id="status-art" class="status-ok" style="display:none">✅ Artwork uploaded</div>
@@ -340,33 +337,39 @@
   <div class="config-panel">
 
     <!-- Step indicator -->
-    <div class="step-bar">
-      <div class="step-segment active" data-step="0"></div>
-      <div class="step-segment" data-step="1"></div>
-      <div class="step-segment" data-step="2"></div>
-      <div class="step-segment" data-step="3"></div>
-      <div class="step-segment" data-step="4"></div>
+    <div class="step-bar-wrapper">
+      <div class="step-bar">
+        <div class="step-segment active" data-step="0" onclick="handleStepClick(0)"></div>
+        <div class="step-segment" data-step="1" onclick="handleStepClick(1)"></div>
+        <div class="step-segment" data-step="2" onclick="handleStepClick(2)"></div>
+        <div class="step-segment" data-step="3" onclick="handleStepClick(3)"></div>
+      </div>
+      <div class="step-labels">
+        <span data-step-label="0" class="active">Art</span>
+        <span data-step-label="1">Music</span>
+        <span data-step-label="2">Qty</span>
+        <span data-step-label="3">Review</span>
+      </div>
     </div>
 
     <!-- STEP 0: Artwork -->
     <div class="step active" id="step-0">
       <h2>Upload your album artwork</h2>
       <p>This will be printed on the front of each of your Goodz.</p>
-      <div class="artwork-req" style="font-size:0.75rem;color:#666;margin-bottom:1rem;line-height:1.5;"><strong>Image Requirements:</strong> 300 DPI &middot; RGB &middot; PNG or TIFF &middot; 70mm &times; 70mm</div>
 
       <div class="upload-grid">
         <div class="upload-box">
           <label class="upload-label">Album Art (Front)</label>
           <div class="drop-zone" id="drop-front" onclick="document.getElementById('input-front').click()">
-            <div class="safe-area-label" id="safe-area-label" style="display:none">Safe print area</div>
             <div class="drop-zone-content" id="front-placeholder">
+              <div class="drop-zone-req-banner">300 DPI · RGB · PNG or TIFF</div>
               <div class="drop-zone-icon">🖼️</div>
               <div class="drop-zone-text">Drop image or<br><span>click to browse</span></div>
             </div>
             <img id="front-preview" style="display:none" src="" alt="Front preview">
             <button class="img-delete-btn" id="img-delete-btn" style="display:none" onclick="clearImage(event)">×</button>
           </div>
-          <input type="file" id="input-front" class="file-input" accept="image/*">
+          <input type="file" id="input-front" class="file-input" accept=".png,.tiff,.tif">
           <div class="file-name" id="front-name"></div>
         </div>
       </div>
@@ -400,9 +403,9 @@
         <div class="csv-zone" id="csv-zone" onclick="document.getElementById('input-csv').click()">
           <div id="csv-zone-content">
             <div class="csv-icon">📋</div>
-            <div class="csv-title">Upload Bandcamp CSV of unique URLs</div>
+            <div class="csv-title">Upload your Bandcamp download codes CSV</div>
             <div class="csv-sub">Drop your Bandcamp CSV here or <span>click to browse</span></div>
-            <div class="csv-helper">One code per line — include the full URL</div>
+            <div class="csv-helper">Bandcamp exports these as a CSV — each row is one unique download link</div>
           </div>
           <input type="file" id="input-csv" class="file-input" accept=".csv">
         </div>
@@ -485,44 +488,31 @@
 
       <div class="btn-row">
         <button class="btn btn-back" onclick="goToStep(1)">← Back</button>
-        <button class="btn btn-primary" id="btn-step2" onclick="goToStep(3)">Next: Sleeve →</button>
+        <button class="btn btn-primary" id="btn-step2" onclick="goToStep(3)">Next: Review →</button>
       </div>
     </div>
 
-    <!-- STEP 3: Sleeve -->
+    <!-- STEP 3: Review (sleeve step removed — sleeve is now a checkbox here) -->
     <div class="step" id="step-3">
-      <h2>Add a sleeve?</h2>
-      <p>Sleeves give your Goodz a more packaged feel — a simple cardboard or paper sleeve that your fans slide their Goodz into at the merch table.</p>
-
-      <div class="sleeve-toggle">
-        <div class="sleeve-option selected" id="opt-no-sleeve" onclick="setSleeve(false)">
-          <div class="sleeve-option-title">No sleeve</div>
-          <div class="sleeve-option-sub">+$0.20 per Goodz if added</div>
-        </div>
-        <div class="sleeve-option" id="opt-with-sleeve" onclick="setSleeve(true)">
-          <div class="sleeve-option-title">Add sleeve</div>
-          <div class="sleeve-option-sub">+$0.20 per Goodz</div>
-        </div>
-      </div>
-
-      <div class="btn-row">
-        <button class="btn btn-back" onclick="goToStep(2)">← Back</button>
-        <button class="btn btn-primary" id="btn-step3" onclick="goToStep(4)">Next: Review →</button>
-      </div>
-    </div>
-
-    <!-- STEP 4: Summary -->
-    <div class="step" id="step-4">
       <h2>Review your order</h2>
       <p>Here's what we'll make and ship to you.</p>
+
+      <!-- Sleeve add-on checkbox -->
+      <div class="sleeve-review-row">
+        <label class="sleeve-checkbox-label">
+          <input type="checkbox" id="sleeve-checkbox" onchange="toggleSleeveCheckbox(this)">
+          ➕ Add sleeve packaging
+        </label>
+        <div class="sleeve-checkbox-sub">+$<span id="sleeve-upcharge-display">0.20</span> per Goodz — <strong>+$<span id="sleeve-total-display">10.00</span></strong> for your order</div>
+      </div>
 
       <div class="summary-rows" id="summary-rows"></div>
 
       <div id="summary-warning" class="summary-warning" style="display:none"></div>
 
       <div class="btn-row">
-        <button class="btn btn-back" onclick="goToStep(3)">← Back</button>
-        <button class="btn btn-primary btn-order" id="btn-order" onclick="placeOrder()" disabled>Place Order</button>
+        <button class="btn btn-back" onclick="goToStep(2)">← Back</button>
+        <button class="btn btn-primary btn-order" id="btn-order" onclick="placeOrder()" disabled>Proceed to Checkout →</button>
       </div>
     </div>
 
@@ -533,31 +523,14 @@
         <h2>Order placed!</h2>
         <p>We'll start preparing your Goodz right away. You'll receive a confirmation email shortly.</p>
         <div class="order-success-detail" id="success-detail"></div>
-        <button class="btn btn-primary" onclick="resetBuilder()">Start Over</button>
+        <button class="btn btn-primary" onclick="resetBuilder()">Order more Goodz</button>
       </div>
     </div>
 
   </div>
 </div>
 
-<!-- CROP MODAL -->
-<div id="crop-modal" class="crop-modal-overlay" style="display:none">
-  <div class="crop-modal-title">Position your artwork — drag the corners to crop</div>
-  <div class="crop-container" id="crop-container">
-    <img id="crop-img" src="" alt="Crop preview">
-    <div class="crop-bleed"></div>
-    <div class="crop-frame" id="crop-frame">
-      <div class="crop-handle tl" data-corner="tl"></div>
-      <div class="crop-handle tr" data-corner="tr"></div>
-      <div class="crop-handle bl" data-corner="bl"></div>
-      <div class="crop-handle br" data-corner="br"></div>
-    </div>
-  </div>
-  <div class="crop-actions">
-    <button class="crop-btn crop-btn-cancel" onclick="closeCropModal()">Cancel</button>
-    <button class="crop-btn crop-btn-apply" onclick="applyCrop()">Apply Crop</button>
-  </div>
-</div>
+<!-- crop modal removed -->
 
 <script>
 const TIERS = [
@@ -611,12 +584,6 @@ let state = {
   currentStep: 0,
 };
 
-let cropBox = { x: 15, y: 15, size: 70 };
-let cropDragging = null;
-let cropStartX = 0;
-let cropStartY = 0;
-let cropStartBox = null;
-
 function init() {
   renderTierButtons();
   setupDragDrop('drop-front', 'input-front', handleFrontFile);
@@ -625,9 +592,9 @@ function init() {
   setupFileInput('input-csv', handleCSV);
   document.getElementById('qty-input').addEventListener('input', handleQtyChange);
   document.getElementById('qty-input').addEventListener('blur', handleQtyBlur);
-  initCropModal();
   renderStep(0);
   updatePricing();
+  updateSleeveCheckboxDisplay();
 }
 
 function renderTierButtons() {
@@ -711,18 +678,52 @@ function readFileAsDataURL(file, callback) {
 }
 
 function handleFrontFile(file) {
-  if (!file.type.startsWith('image/')) return;
+  const allowed = ['image/png', 'image/tiff', 'image/tif'];
+  const ext = file.name.toLowerCase();
+  if (!ext.endsWith('.png') && !ext.endsWith('.tiff') && !ext.endsWith('.tif')) {
+    alert('Please upload a PNG or TIFF file for best print quality.');
+    return;
+  }
   readFileAsDataURL(file, dataUrl => {
     state.frontArt = dataUrl;
     document.getElementById('front-preview').src = dataUrl;
     document.getElementById('front-preview').style.display = 'block';
     document.getElementById('front-placeholder').style.display = 'none';
     document.getElementById('front-name').textContent = file.name;
-    document.getElementById('safe-area-label').style.display = 'block';
     document.getElementById('img-delete-btn').style.display = 'block';
-    openCropModal(dataUrl);
+    updateCardPreview();
     updateStepButtons();
     updateStatusBar();
+
+    // Upload art to Cloudinary (non-blocking, replaces base64 with CDN URL)
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      canvas.getContext('2d').drawImage(img, 0, 0);
+      canvas.toBlob(blob => {
+        if (!blob) return;
+        const formData = new FormData();
+        formData.append('file', blob, 'artwork.png');
+        formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+        formData.append('folder', 'goodz');
+        fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
+          method: 'POST',
+          body: formData,
+        }).then(r => r.json()).then(d => {
+          if (d.secure_url) {
+            state.frontArt = d.secure_url;
+            console.log('Art uploaded to Cloudinary:', d.secure_url);
+          } else {
+            console.warn('Art Cloudinary upload: no secure_url', d);
+          }
+        }).catch(err => {
+          console.warn('Art Cloudinary upload failed (non-blocking):', err);
+        });
+      }, 'image/png');
+    };
+    img.src = dataUrl;
   });
 }
 
@@ -734,7 +735,6 @@ function clearImage(e) {
   document.getElementById('front-preview').src = '';
   document.getElementById('front-placeholder').style.display = 'flex';
   document.getElementById('front-name').textContent = '';
-  document.getElementById('safe-area-label').style.display = 'none';
   document.getElementById('img-delete-btn').style.display = 'none';
   document.getElementById('input-front').value = '';
   updateCardPreview();
@@ -885,11 +885,22 @@ function handleAltURLChange() {
 
 function setSleeve(val) {
   state.hasSleeve = val;
-  document.getElementById('opt-no-sleeve').classList.toggle('selected', !val);
-  document.getElementById('opt-with-sleeve').classList.toggle('selected', val);
   document.getElementById('sleeve-wrap').style.display = val ? 'flex' : 'none';
   updatePricing();
   updateSummary();
+  updateSleeveCheckboxDisplay();
+}
+
+function toggleSleeveCheckbox(checkbox) {
+  setSleeve(checkbox.checked);
+}
+
+function updateSleeveCheckboxDisplay() {
+  const totalSleeve = (state.quantity * SLEEVE_UPCHARGE).toFixed(2);
+  const perEl = document.getElementById('sleeve-upcharge-display');
+  const totEl = document.getElementById('sleeve-total-display');
+  if (perEl) perEl.textContent = SLEEVE_UPCHARGE.toFixed(2);
+  if (totEl) totEl.textContent = totalSleeve;
 }
 
 function updateCardPreview() {
@@ -960,16 +971,24 @@ function renderStep(n) {
     el.classList.toggle('active', i === n);
     el.classList.toggle('done', i < n);
   });
+  document.querySelectorAll('.step-labels span[data-step-label]').forEach((el) => {
+    const i = parseInt(el.dataset.stepLabel);
+    el.classList.toggle('active', i === n);
+    el.classList.toggle('done', i < n);
+  });
+}
+
+function handleStepClick(n) {
+  if (n < state.currentStep) goToStep(n);
 }
 
 function updateStepButtons() {
   const qty = state.quantity;
-  document.getElementById('btn-step0').disabled = !state.frontArt;
-  document.getElementById('btn-step1').disabled = false;
-  document.getElementById('btn-step2').disabled = qty < 50;
-  document.getElementById('btn-step3').disabled = false;
-
   const hasCodes = (state.bandcampURLs.length > 0 || state.altURL);
+  document.getElementById('btn-step0').disabled = !state.frontArt;
+  document.getElementById('btn-step1').disabled = !hasCodes;
+  document.getElementById('btn-step2').disabled = qty < 50;
+
   const tier = getTier(qty);
   const sleeveAmt = state.hasSleeve ? qty * SLEEVE_UPCHARGE : 0;
   const total = tier ? (tier.price * qty) + sleeveAmt : 0;
@@ -981,8 +1000,8 @@ function updateStepButtons() {
     btn.textContent = 'Uploading CSV…';
   } else {
     btn.textContent = hasCodes
-      ? `Place Order — $${total.toFixed(2)}`
-      : 'Place Order';
+      ? `Proceed to Checkout → — $${total.toFixed(2)}`
+      : 'Proceed to Checkout →';
   }
 
   // CSV warning
@@ -1013,6 +1032,7 @@ function updatePricing() {
   document.querySelectorAll('.tier-btn').forEach(btn => {
     btn.classList.toggle('active', parseInt(btn.dataset.min) === tier.min);
   });
+  updateSleeveCheckboxDisplay();
 }
 
 function updateSummary() {
@@ -1027,10 +1047,11 @@ function updateSummary() {
     ? state.altURL
     : (state.bandcampURLs.length > 0 ? `${state.bandcampURLs.length} Bandcamp codes` : 'None');
 
+  const codesLabel = state.bandcampMode === 'url' ? 'Bandcamp link' : 'Bandcamp codes';
   const rows = [
     { label: 'Album art', value: state.frontArt ? 'Uploaded ✓' : 'Missing ✗', ok: !!state.frontArt },
     { label: 'Sleeve', value: sleeveVal, ok: true },
-    { label: 'Download links', value: codesVal, ok: hasCSV || hasAlt },
+    { label: codesLabel, value: codesVal, ok: hasCSV || hasAlt },
     { label: 'Quantity', value: `${state.quantity} units` },
     { label: 'Unit price', value: unitPrice ? `$${unitPrice.toFixed(2)}${state.hasSleeve ? ` + $${SLEEVE_UPCHARGE.toFixed(2)} sleeve` : ''}` : '—' },
     { label: 'Total', value: total ? `$${total.toFixed(2)}` : '—', bold: true },
@@ -1091,7 +1112,7 @@ function placeOrder() {
   })
   .catch(err => {
     console.error(err);
-    btn.textContent = 'Place Order';
+    btn.textContent = 'Proceed to Checkout →';
     btn.disabled = false;
     const warnEl = document.getElementById('summary-warning');
     warnEl.style.display = 'block';
@@ -1108,9 +1129,9 @@ function resetBuilder() {
   document.getElementById('front-preview').src = '';
   document.getElementById('front-placeholder').style.display = 'flex';
   document.getElementById('front-name').textContent = '';
-  document.getElementById('safe-area-label').style.display = 'none';
   document.getElementById('img-delete-btn').style.display = 'none';
   document.getElementById('sleeve-wrap').style.display = 'none';
+  document.getElementById('sleeve-checkbox').checked = false;
   document.getElementById('csv-zone-content').style.display = 'block';
   document.getElementById('csv-filled').style.display = 'none';
   document.getElementById('csv-success').style.display = 'none';
@@ -1121,136 +1142,16 @@ function resetBuilder() {
   document.getElementById('alt-url-success').style.display = 'none';
   document.getElementById('bandcamp-csv-area').style.display = 'block';
   document.getElementById('bandcamp-url-area').style.display = 'none';
-  setSleeve(false);
   setBandcampMode('csv');
   updateCardPreview();
   updatePricing();
   updateStatusBar();
+  updateSleeveCheckboxDisplay();
   goToStep(0);
 }
 
-// ── Crop Modal ────────────────────────────────────────────────────────────────
-function initCropModal() {
-  const container = document.getElementById('crop-container');
-  const frame = document.getElementById('crop-frame');
 
-  container.addEventListener('mousedown', (e) => {
-    const handle = e.target.dataset.corner;
-    cropDragging = handle || 'move';
-    cropStartX = e.clientX;
-    cropStartY = e.clientY;
-    cropStartBox = { ...cropBox };
-  });
-
-  document.addEventListener('mousemove', (e) => {
-    if (!cropDragging) return;
-    const dx = e.clientX - cropStartX;
-    const dy = e.clientY - cropStartY;
-    const cont = document.getElementById('crop-container');
-    const contSize = Math.min(cont.clientWidth, cont.clientHeight);
-    const b = cropStartBox;
-
-    if (cropDragging === 'move') {
-      cropBox.x = Math.max(0, Math.min(contSize - b.size, b.x + dx));
-      cropBox.y = Math.max(0, Math.min(contSize - b.size, b.y + dy));
-    } else if (cropDragging === 'tl') {
-      const newSize = Math.max(20, b.size - Math.max(dx, dy));
-      const newX = b.x + (b.size - newSize);
-      const newY = b.y + (b.size - newSize);
-      if (newX >= 0 && newY >= 0) { cropBox.x = newX; cropBox.y = newY; cropBox.size = newSize; }
-    } else if (cropDragging === 'tr') {
-      const newSize = Math.max(20, b.size + Math.min(-dx, dy));
-      const newY = b.y + (b.size - newSize);
-      if (newY >= 0 && b.x + newSize <= contSize) { cropBox.y = newY; cropBox.size = newSize; }
-    } else if (cropDragging === 'bl') {
-      const newSize = Math.max(20, b.size + Math.min(-dy, dx));
-      const newX = b.x + (b.size - newSize);
-      if (newX >= 0 && b.y + newSize <= contSize) { cropBox.x = newX; cropBox.size = newSize; }
-    } else if (cropDragging === 'br') {
-      const newSize = Math.max(20, b.size + Math.min(dx, dy));
-      if (b.x + newSize <= contSize && b.y + newSize <= contSize) { cropBox.size = newSize; }
-    }
-    renderCropFrame();
-  });
-
-  document.addEventListener('mouseup', () => { cropDragging = null; });
-}
-
-function renderCropFrame() {
-  const frame = document.getElementById('crop-frame');
-  frame.style.left = cropBox.x + 'px';
-  frame.style.top = cropBox.y + 'px';
-  frame.style.width = cropBox.size + 'px';
-  frame.style.height = cropBox.size + 'px';
-}
-
-function openCropModal(src) {
-  document.getElementById('crop-img').src = src;
-  document.getElementById('crop-modal').style.display = 'flex';
-  const cont = document.getElementById('crop-container');
-  const contSize = Math.min(cont.clientWidth, cont.clientHeight);
-  cropBox = { x: contSize * 0.15, y: contSize * 0.15, size: contSize * 0.70 };
-  renderCropFrame();
-}
-
-function closeCropModal() {
-  document.getElementById('crop-modal').style.display = 'none';
-}
-
-function applyCrop() {
-  const img = document.getElementById('crop-img');
-  const cont = document.getElementById('crop-container');
-  const contSize = Math.min(cont.clientWidth, cont.clientHeight);
-  const scaleX = img.naturalWidth / contSize;
-  const scaleY = img.naturalHeight / contSize;
-  const cropX = cropBox.x * scaleX;
-  const cropY = cropBox.y * scaleY;
-  const cropW = cropBox.size * scaleX;
-  const cropH = cropBox.size * scaleY;
-
-  const canvas = document.createElement('canvas');
-  canvas.width = cropW;
-  canvas.height = cropH;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
-  const cropped = canvas.toDataURL('image/png');
-
-  // Store base64 locally for immediate preview
-  state.frontArt = cropped;
-  document.getElementById('front-preview').src = cropped;
-  document.getElementById('front-preview').style.display = 'block';
-  document.getElementById('front-placeholder').style.display = 'none';
-  document.getElementById('safe-area-label').style.display = 'block';
-  document.getElementById('img-delete-btn').style.display = 'block';
-
-  // Upload full-res art to Cloudinary as Blob (non-blocking)
-  canvas.toBlob(blob => {
-    if (!blob) return;
-    const formData = new FormData();
-    formData.append('file', blob, 'artwork.png');
-    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-    formData.append('folder', 'goodz');
-    fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
-      method: 'POST',
-      body: formData,
-    }).then(r => r.json()).then(d => {
-      if (d.secure_url) {
-        state.frontArt = d.secure_url; // replace base64 with real Cloudinary URL
-        console.log('Art uploaded to Cloudinary:', d.secure_url);
-      } else {
-        console.warn('Art Cloudinary upload: no secure_url in response', d);
-      }
-    }).catch(err => {
-      console.warn('Art Cloudinary upload failed:', err);
-    });
-  }, 'image/png');
-
-  closeCropModal();
-  updateCardPreview();
-  updateStepButtons();
-  updateStatusBar();
-
-}
+// Crop modal removed
 
 init();
 </script>
