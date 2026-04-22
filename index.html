@@ -352,7 +352,7 @@
     <div class="step active" id="step-0">
       <h2>Upload your album artwork</h2>
       <p>This will be printed on the front of each of your Goodz.</p>
-      <div class="artwork-req" style="font-size:0.75rem;color:#666;margin-bottom:1rem;line-height:1.5;">300 DPI &middot; RGB &middot; PNG or TIFF &middot; 70mm &times; 70mm</div>
+      <div class="artwork-req" style="font-size:0.75rem;color:#666;margin-bottom:1rem;line-height:1.5;"><strong>Image Requirements:</strong> 300 DPI &middot; RGB &middot; PNG or TIFF &middot; 70mm &times; 70mm</div>
 
       <div class="upload-grid">
         <div class="upload-box">
@@ -571,6 +571,24 @@ const TIERS = [
 ];
 const SLEEVE_UPCHARGE = 0.20;
 const API_BASE = ""; // empty = same origin, uses bandcamp-builder.vercel.app/api
+const CLOUDINARY_CLOUD = "dg6kjrhid";
+const CLOUDINARY_UPLOAD_PRESET = "goodz_uploads";
+
+// ── Cloudinary upload ────────────────────────────────────────────────────────
+function uploadToCloudinary(dataUrl, resourceType = 'image') {
+  return fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/${resourceType}/upload`, {
+    method: 'POST',
+    body: JSON.stringify({
+      file: dataUrl,
+      upload_preset: CLOUDINARY_UPLOAD_PRESET,
+      folder: 'goodz',
+    }),
+    headers: { 'Content-Type': 'application/json' },
+  }).then(r => r.json()).then(d => {
+    if (d.error) throw new Error(d.error.message);
+    return d.secure_url;
+  });
+}
 
 function getVariantIdForQty(qty) {
   if (qty >= 3000) return "gid://shopify/ProductVariant/51673311510824";
@@ -583,7 +601,9 @@ function getVariantIdForQty(qty) {
 }
 
 let state = {
-  frontArt: null,
+  frontArt: null,       // Cloudinary URL for artwork
+  frontArtLocal: null,  // local base64 for preview display only
+  bandcampCSVUrl: null, // Cloudinary URL for CSV file
   hasSleeve: false,
   bandcampMode: 'csv',
   bandcampURLs: [],
@@ -694,6 +714,7 @@ function readFileAsDataURL(file, callback) {
 function handleFrontFile(file) {
   if (!file.type.startsWith('image/')) return;
   readFileAsDataURL(file, dataUrl => {
+    state.frontArtLocal = dataUrl;
     state.frontArt = dataUrl;
     document.getElementById('front-preview').src = dataUrl;
     document.getElementById('front-preview').style.display = 'block';
@@ -710,6 +731,8 @@ function handleFrontFile(file) {
 function clearImage(e) {
   e.stopPropagation();
   state.frontArt = null;
+  state.frontArtLocal = null;
+  state.bandcampCSVUrl = null;
   document.getElementById('front-preview').style.display = 'none';
   document.getElementById('front-preview').src = '';
   document.getElementById('front-placeholder').style.display = 'flex';
@@ -743,6 +766,23 @@ function handleCSV(file) {
       updateStatusBar();
       updateStepButtons();
       updateSummary();
+
+      // Upload CSV to Cloudinary
+      const csvText = e.target.result;
+      const csvBlob = new Blob([csvText], { type: 'text/csv' });
+      const formData = new FormData();
+      formData.append('file', csvBlob, file.name);
+      formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+      formData.append('folder', 'goodz');
+      fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/raw/upload`, {
+        method: 'POST',
+        body: formData,
+      }).then(r => r.json()).then(d => {
+        if (d.error) throw new Error(d.error.message);
+        state.bandcampCSVUrl = d.secure_url;
+      }).catch(err => {
+        console.warn('Cloudinary CSV upload failed:', err);
+      });
     }, 800);
   };
   reader.readAsText(file);
@@ -855,8 +895,8 @@ function updateCardPreview() {
   const placeholder = document.getElementById('card-placeholder');
   const hint = document.getElementById('preview-hint');
 
-  if (state.frontArt) {
-    art.src = state.frontArt;
+  if (state.frontArt || state.frontArtLocal) {
+    art.src = state.frontArtLocal || state.frontArt;
     art.style.display = 'block';
     placeholder.style.display = 'none';
     card.classList.add('has-art');
@@ -1019,7 +1059,7 @@ function placeOrder() {
   };
 
   if (state.bandcampMode === 'csv' && state.bandcampURLs.length > 0) {
-    payload.csvUrl = state.bandcampURLs.join('\n');
+    payload.csvUrl = state.bandcampCSVUrl || state.bandcampURLs.join('\n');
     payload.csvCount = state.bandcampURLs.length;
   } else if (state.bandcampMode === 'url' && state.altURL) {
     payload.musicUrl = state.altURL;
@@ -1055,7 +1095,7 @@ function placeOrder() {
 }
 
 function resetBuilder() {
-  state = { frontArt: null, hasSleeve: false, bandcampMode: 'csv', bandcampURLs: [], altURL: '', quantity: 50, currentStep: 0 };
+  state = { frontArt: null, frontArtLocal: null, bandcampCSVUrl: null, hasSleeve: false, bandcampMode: 'csv', bandcampURLs: [], altURL: '', quantity: 50, currentStep: 0 };
   document.getElementById('front-preview').style.display = 'none';
   document.getElementById('front-preview').src = '';
   document.getElementById('front-placeholder').style.display = 'flex';
@@ -1167,7 +1207,9 @@ function applyCrop() {
   ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
   const cropped = canvas.toDataURL('image/png');
 
-  state.frontArt = cropped;
+  // Store local preview immediately
+  state.frontArtLocal = cropped;
+  state.frontArt = cropped; // use base64 until Cloudinary upload completes
   document.getElementById('front-preview').src = cropped;
   document.getElementById('front-preview').style.display = 'block';
   document.getElementById('front-placeholder').style.display = 'none';
@@ -1177,6 +1219,13 @@ function applyCrop() {
   updateCardPreview();
   updateStepButtons();
   updateStatusBar();
+
+  // Upload cropped image to Cloudinary
+  uploadToCloudinary(cropped, 'image').then(url => {
+    state.frontArt = url;
+  }).catch(err => {
+    console.warn('Cloudinary art upload failed:', err);
+  });
 }
 
 init();
