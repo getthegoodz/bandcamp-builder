@@ -604,6 +604,8 @@ let state = {
   frontArt: null,       // Cloudinary URL for artwork
   frontArtLocal: null,  // local base64 for preview display only
   bandcampCSVUrl: null, // Cloudinary URL for CSV file
+  uploadingArt: false,   // true while Cloudinary art upload is in flight
+  uploadingCSV: false,  // true while Cloudinary CSV upload is in flight
   hasSleeve: false,
   bandcampMode: 'csv',
   bandcampURLs: [],
@@ -713,6 +715,7 @@ function readFileAsDataURL(file, callback) {
 
 function handleFrontFile(file) {
   if (!file.type.startsWith('image/')) return;
+  state.uploadingArt = false; // reset any in-flight upload
   readFileAsDataURL(file, dataUrl => {
     state.frontArtLocal = dataUrl;
     state.frontArt = dataUrl;
@@ -732,6 +735,8 @@ function clearImage(e) {
   e.stopPropagation();
   state.frontArt = null;
   state.frontArtLocal = null;
+  state.uploadingArt = false;
+  state.uploadingCSV = false;
   state.bandcampCSVUrl = null;
   document.getElementById('front-preview').style.display = 'none';
   document.getElementById('front-preview').src = '';
@@ -768,6 +773,8 @@ function handleCSV(file) {
       updateSummary();
 
       // Upload CSV to Cloudinary
+      state.uploadingCSV = true;
+      updatePlaceOrderButton();
       const csvText = e.target.result;
       const csvBlob = new Blob([csvText], { type: 'text/csv' });
       const formData = new FormData();
@@ -780,8 +787,12 @@ function handleCSV(file) {
       }).then(r => r.json()).then(d => {
         if (d.error) throw new Error(d.error.message);
         state.bandcampCSVUrl = d.secure_url;
+        state.uploadingCSV = false;
+        updatePlaceOrderButton();
       }).catch(err => {
         console.warn('Cloudinary CSV upload failed:', err);
+        state.uploadingCSV = false;
+        updatePlaceOrderButton();
       });
     }, 800);
   };
@@ -972,10 +983,15 @@ function updateStepButtons() {
   const total = tier ? (tier.price * qty) + sleeveAmt : 0;
 
   const btn = document.getElementById('btn-order');
-  btn.disabled = !state.frontArt || qty < 50;
-  btn.textContent = hasCodes
-    ? `Place Order — $${total.toFixed(2)}`
-    : 'Place Order';
+  const isUploading = state.uploadingArt || state.uploadingCSV;
+  btn.disabled = !state.frontArt || qty < 50 || isUploading;
+  if (isUploading) {
+    btn.textContent = 'Uploading files…';
+  } else {
+    btn.textContent = hasCodes
+      ? `Place Order — $${total.toFixed(2)}`
+      : 'Place Order';
+  }
 
   // CSV warning
   const hasCSV = state.bandcampURLs.length > 0;
@@ -1095,7 +1111,7 @@ function placeOrder() {
 }
 
 function resetBuilder() {
-  state = { frontArt: null, frontArtLocal: null, bandcampCSVUrl: null, hasSleeve: false, bandcampMode: 'csv', bandcampURLs: [], altURL: '', quantity: 50, currentStep: 0 };
+  state = { frontArt: null, frontArtLocal: null, bandcampCSVUrl: null, uploadingArt: false, uploadingCSV: false, hasSleeve: false, bandcampMode: 'csv', bandcampURLs: [], altURL: '', quantity: 50, currentStep: 0 };
   document.getElementById('front-preview').style.display = 'none';
   document.getElementById('front-preview').src = '';
   document.getElementById('front-placeholder').style.display = 'flex';
@@ -1221,10 +1237,16 @@ function applyCrop() {
   updateStatusBar();
 
   // Upload cropped image to Cloudinary
+  state.uploadingArt = true;
+  updatePlaceOrderButton();
   uploadToCloudinary(cropped, 'image').then(url => {
     state.frontArt = url;
+    state.uploadingArt = false;
+    updatePlaceOrderButton();
   }).catch(err => {
     console.warn('Cloudinary art upload failed:', err);
+    state.uploadingArt = false;
+    updatePlaceOrderButton();
   });
 }
 
