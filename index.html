@@ -569,7 +569,7 @@ const TIERS = [
   { min: 3000, max: null, price: 2.52 },
 ];
 const SLEEVE_UPCHARGE = 0.20;
-const API_BASE = "https://site-pi-liard-70.vercel.app";
+const API_BASE = ""; // empty = same origin, uses bandcamp-builder.vercel.app/api
 
 function getVariantIdForQty(qty) {
   if (qty >= 3000) return "gid://shopify/ProductVariant/51673311510824";
