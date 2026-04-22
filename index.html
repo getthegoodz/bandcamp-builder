@@ -766,7 +766,7 @@ function handleCSV(file) {
 
       // Upload CSV to Cloudinary
       state.uploadingCSV = true;
-      updatePlaceOrderButton();
+      updateStepButtons();
       const csvText = e.target.result;
       const csvBlob = new Blob([csvText], { type: 'text/csv' });
       const formData = new FormData();
@@ -780,11 +780,11 @@ function handleCSV(file) {
         if (d.error) throw new Error(d.error.message);
         state.bandcampCSVUrl = d.secure_url;
         state.uploadingCSV = false;
-        updatePlaceOrderButton();
+        updateStepButtons();
       }).catch(err => {
-        console.warn('Cloudinary CSV upload failed:', err);
+        console.warn('Cloudinary CSV upload failed (non-blocking):', err);
         state.uploadingCSV = false;
-        updatePlaceOrderButton();
+        updateStepButtons();
       });
     }, 800);
   };
