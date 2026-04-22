@@ -98,7 +98,7 @@
 
     .card.has-art { background: transparent; }
     .card-placeholder-text { font-size: 0.6rem; color: #666; text-align: center; line-height: 1.4; }
-    .zone-guide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; opacity: 0.4; border-radius: inherit; }
+    .zone-guide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; z-index: 10; opacity: 0.4; border-radius: inherit; }
     .card-art { width: 100%; height: 100%; object-fit: cover; }
 
     .sleeve-wrap {
@@ -330,6 +330,7 @@
       </div>
 
       <div class="preview-hint" id="preview-hint">Upload album art to preview</div>
+      <div id="print-explanation" class="print-explanation" style="display:none;font-size:0.65rem;color:#999;line-height:1.5;max-width:200px;text-align:center;margin-top:0.5rem;">The red line shows the outer edge of your Goodz. Keep all important print elements out of the pink "safe zone," an area 1.5 mm away from the interior edge of the cut/die line.</div>
     </div>
 
     <div id="status-art" class="status-ok" style="display:none">✅ Artwork uploaded</div>
@@ -351,6 +352,7 @@
     <div class="step active" id="step-0">
       <h2>Upload your album artwork</h2>
       <p>This will be printed on the front of each of your Goodz.</p>
+      <div class="artwork-req" style="font-size:0.75rem;color:#666;margin-bottom:1rem;line-height:1.5;">300 DPI &middot; RGB &middot; PNG or TIFF &middot; 70mm &times; 70mm</div>
 
       <div class="upload-grid">
         <div class="upload-box">
@@ -360,7 +362,6 @@
             <div class="drop-zone-content" id="front-placeholder">
               <div class="drop-zone-icon">🖼️</div>
               <div class="drop-zone-text">Drop image or<br><span>click to browse</span></div>
-              <div class="artwork-req">300 DPI · RGB · PNG or TIFF · 70mm × 70mm</div>
             </div>
             <img id="front-preview" style="display:none" src="" alt="Front preview">
             <button class="img-delete-btn" id="img-delete-btn" style="display:none" onclick="clearImage(event)">×</button>
@@ -860,6 +861,7 @@ function updateCardPreview() {
     placeholder.style.display = 'none';
     card.classList.add('has-art');
     document.getElementById('zone-guide').style.display = 'block';
+    document.getElementById('print-explanation').style.display = 'block';
     hint.textContent = state.hasSleeve ? 'Goodz + sleeve ready' : 'Goodz ready';
     if (state.hasSleeve) {
       const peekArt = document.getElementById('sleeve-card-art');
@@ -871,6 +873,7 @@ function updateCardPreview() {
     placeholder.style.display = 'flex';
     card.classList.remove('has-art');
     document.getElementById('zone-guide').style.display = 'none';
+    document.getElementById('print-explanation').style.display = 'none';
     hint.textContent = 'Upload album art to preview';
     if (state.hasSleeve) {
       const peekArt = document.getElementById('sleeve-card-art');
