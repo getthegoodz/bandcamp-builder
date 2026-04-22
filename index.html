@@ -600,10 +600,8 @@ function getVariantIdForQty(qty) {
 }
 
 let state = {
-  frontArt: null,       // Cloudinary URL for artwork
-  frontArtLocal: null,  // local base64 for preview display only
+  frontArt: null,       // base64 data URL for artwork
   bandcampCSVUrl: null, // Cloudinary URL for CSV file
-  uploadingArt: false,   // true while Cloudinary art upload is in flight
   uploadingCSV: false,  // true while Cloudinary CSV upload is in flight
   hasSleeve: false,
   bandcampMode: 'csv',
@@ -714,9 +712,7 @@ function readFileAsDataURL(file, callback) {
 
 function handleFrontFile(file) {
   if (!file.type.startsWith('image/')) return;
-  state.uploadingArt = false; // reset any in-flight upload
   readFileAsDataURL(file, dataUrl => {
-    state.frontArtLocal = dataUrl;
     state.frontArt = dataUrl;
     document.getElementById('front-preview').src = dataUrl;
     document.getElementById('front-preview').style.display = 'block';
@@ -733,9 +729,6 @@ function handleFrontFile(file) {
 function clearImage(e) {
   e.stopPropagation();
   state.frontArt = null;
-  state.frontArtLocal = null;
-  state.uploadingArt = false;
-  state.uploadingCSV = false;
   state.bandcampCSVUrl = null;
   document.getElementById('front-preview').style.display = 'none';
   document.getElementById('front-preview').src = '';
@@ -905,8 +898,8 @@ function updateCardPreview() {
   const placeholder = document.getElementById('card-placeholder');
   const hint = document.getElementById('preview-hint');
 
-  if (state.frontArt || state.frontArtLocal) {
-    art.src = state.frontArtLocal || state.frontArt;
+  if (state.frontArt) {
+    art.src = state.frontArt;
     art.style.display = 'block';
     placeholder.style.display = 'none';
     card.classList.add('has-art');
@@ -982,10 +975,10 @@ function updateStepButtons() {
   const total = tier ? (tier.price * qty) + sleeveAmt : 0;
 
   const btn = document.getElementById('btn-order');
-  const isUploading = state.uploadingArt || state.uploadingCSV;
+  const isUploading = state.uploadingCSV;
   btn.disabled = !state.frontArt || qty < 50 || isUploading;
   if (isUploading) {
-    btn.textContent = 'Uploading files…';
+    btn.textContent = 'Uploading CSV…';
   } else {
     btn.textContent = hasCodes
       ? `Place Order — $${total.toFixed(2)}`
@@ -1110,7 +1103,7 @@ function placeOrder() {
 }
 
 function resetBuilder() {
-  state = { frontArt: null, frontArtLocal: null, bandcampCSVUrl: null, uploadingArt: false, uploadingCSV: false, hasSleeve: false, bandcampMode: 'csv', bandcampURLs: [], altURL: '', quantity: 50, currentStep: 0 };
+  state = { frontArt: null, bandcampCSVUrl: null, uploadingCSV: false, hasSleeve: false, bandcampMode: 'csv', bandcampURLs: [], altURL: '', quantity: 50, currentStep: 0 };
   document.getElementById('front-preview').style.display = 'none';
   document.getElementById('front-preview').src = '';
   document.getElementById('front-placeholder').style.display = 'flex';
@@ -1222,9 +1215,8 @@ function applyCrop() {
   ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
   const cropped = canvas.toDataURL('image/png');
 
-  // Store local preview immediately
-  state.frontArtLocal = cropped;
-  state.frontArt = cropped; // use base64 until Cloudinary upload completes
+  // Store cropped image — base64 goes directly to Shopify
+  state.frontArt = cropped;
   document.getElementById('front-preview').src = cropped;
   document.getElementById('front-preview').style.display = 'block';
   document.getElementById('front-placeholder').style.display = 'none';
@@ -1235,19 +1227,6 @@ function applyCrop() {
   updateStepButtons();
   updateStatusBar();
 
-  // Upload cropped image to Cloudinary
-  state.uploadingArt = true;
-  updatePlaceOrderButton();
-  uploadToCloudinary(cropped, 'image').then(url => {
-    state.frontArt = url;
-    state.uploadingArt = false;
-    updatePlaceOrderButton();
-  }).catch(err => {
-    console.warn('Cloudinary art upload failed (keeping base64):', err);
-    // Keep state.frontArt as the base64 data URL — the API accepts it
-    state.uploadingArt = false;
-    updatePlaceOrderButton();
-  });
 }
 
 init();
