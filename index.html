@@ -1215,13 +1215,36 @@ function applyCrop() {
   ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
   const cropped = canvas.toDataURL('image/png');
 
-  // Store cropped image — base64 goes directly to Shopify
+  // Store base64 locally for immediate preview
   state.frontArt = cropped;
   document.getElementById('front-preview').src = cropped;
   document.getElementById('front-preview').style.display = 'block';
   document.getElementById('front-placeholder').style.display = 'none';
   document.getElementById('safe-area-label').style.display = 'block';
   document.getElementById('img-delete-btn').style.display = 'block';
+
+  // Upload full-res art to Cloudinary as Blob (non-blocking)
+  canvas.toBlob(blob => {
+    if (!blob) return;
+    const formData = new FormData();
+    formData.append('file', blob, 'artwork.png');
+    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    formData.append('folder', 'goodz');
+    fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
+      method: 'POST',
+      body: formData,
+    }).then(r => r.json()).then(d => {
+      if (d.secure_url) {
+        state.frontArt = d.secure_url; // replace base64 with real Cloudinary URL
+        console.log('Art uploaded to Cloudinary:', d.secure_url);
+      } else {
+        console.warn('Art Cloudinary upload: no secure_url in response', d);
+      }
+    }).catch(err => {
+      console.warn('Art Cloudinary upload failed:', err);
+    });
+  }, 'image/png');
+
   closeCropModal();
   updateCardPreview();
   updateStepButtons();
