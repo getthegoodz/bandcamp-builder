@@ -5,13 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Order Custom Goodz — Goodz</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --orange: #E86900;
-      --orange-light: #fff5eb;
+      --yellow: #FEC850;
+      --yellow-light: #fff8e1;
+      --black: #000000;
+      --cream: #f0efe1;
+      --text: #333333;
       --green-bg: #f0fdf4;
       --green-border: #bbf7d0;
       --green-text: #166534;
@@ -27,22 +30,23 @@
     }
 
     body {
-      font-family: 'Inter', -apple-system, sans-serif;
-      background: #fefefe;
-      color: #1a1a1a;
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      background: var(--cream);
+      color: var(--text);
       min-height: 100vh;
     }
 
     .header {
-      border-bottom: 1px solid #eee;
+      border-bottom: 2px solid var(--black);
       padding: 1rem 2rem;
       display: flex;
       align-items: center;
       gap: 1rem;
+      background: var(--cream);
     }
-    .header-brand { font-size: 1.1rem; font-weight: 800; color: var(--orange); letter-spacing: -0.02em; }
-    .header-sep { color: #ccc; }
-    .header-page { font-weight: 600; }
+    .header-brand { font-size: 1.1rem; font-weight: 800; font-family: 'Poppins', sans-serif; color: var(--black); letter-spacing: -0.02em; }
+    .header-sep { color: #aaa; }
+    .header-page { font-weight: 600; color: var(--text); }
 
     .layout {
       max-width: 1100px;
@@ -61,7 +65,7 @@
         position: sticky;
         top: 0;
         z-index: 100;
-        background: #fefefe;
+        background: var(--cream);
         padding-bottom: 0.5rem;
       }
       .config-panel { order: 1; padding-top: 1rem; }
@@ -70,8 +74,9 @@
     .preview-panel { position: sticky; top: 2rem; }
 
     .goodz-preview {
-      background: #f5f5f5;
-      border-radius: 16px;
+      background: #e8e7d8;
+      border-radius: 0;
+      border: 2px solid var(--black);
       padding: 0.75rem 1rem;
       display: flex;
       flex-direction: column;
@@ -170,19 +175,19 @@
       color: var(--blue-text);
     }
 
-    .config-panel h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .config-panel h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: 0.25rem; font-family: 'Poppins', sans-serif; text-transform: uppercase; letter-spacing: -0.01em; }
     .config-panel > p { color: #666; font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.6; }
 
     .step-bar-wrapper { margin-bottom: 1.75rem; }
     .step-bar { display: flex; gap: 0.25rem; margin-bottom: 0.4rem; }
-    .step-segment { flex: 1; height: 4px; border-radius: 2px; background: #e5e5e5; transition: background 0.2s; cursor: default; }
-    .step-segment.done, .step-segment.active { background: var(--orange); }
+    .step-segment { flex: 1; height: 4px; border-radius: 0; background: #d0cfc0; transition: background 0.2s; cursor: default; }
+    .step-segment.done, .step-segment.active { background: var(--black); }
     .step-segment.done { cursor: pointer; }
     .step-labels { display: flex; }
-    .step-labels span { flex: 1; text-align: center; font-size: 0.62rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #bbb; transition: color 0.2s; }
-    .step-labels span.done { color: var(--orange); cursor: pointer; }
+    .step-labels span { flex: 1; text-align: center; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #999; transition: color 0.2s; }
+    .step-labels span.done { color: var(--black); cursor: pointer; }
     .step-labels span.done:hover { text-decoration: underline; }
-    .step-labels span.active { color: #1a1a1a; }
+    .step-labels span.active { color: var(--black); }
 
     .upload-grid { display: flex; gap: 2rem; flex-wrap: wrap; }
     .upload-box { flex: 1 1 200px; min-width: 180px; }
@@ -191,13 +196,13 @@
     .drop-zone {
       width: 100%;
       aspect-ratio: 1;
-      border: 2px dashed #ccc;
-      border-radius: 8px;
+      border: 2px dashed #aaa;
+      border-radius: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      background: #fafafa;
+      background: #e8e7d8;
       transition: all 0.15s ease;
       overflow: hidden;
       position: relative;
@@ -205,13 +210,13 @@
       flex-direction: column;
     }
 
-    .drop-zone:hover, .drop-zone.drag-over { border-color: var(--orange); background: var(--orange-light); }
+    .drop-zone:hover, .drop-zone.drag-over { border-color: var(--black); background: var(--yellow-light); }
     .drop-zone-content { padding: 1rem; }
     .drop-zone-icon { font-size: 2rem; margin-bottom: 0.5rem; }
     .drop-zone-text { font-size: 0.8rem; color: #999; line-height: 1.5; }
-    .drop-zone-text span { color: var(--orange); }
+    .drop-zone-text span { color: var(--black); font-weight: 700; }
     .artwork-req { font-size: 0.65rem; color: #bbb; margin-top: 0.5rem; line-height: 1.4; }
-    .drop-zone-req-banner { background: var(--orange); color: #fff; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em; padding: 0.3rem 0.6rem; border-radius: 4px; margin-bottom: 0.5rem; text-align: center; }
+    .drop-zone-req-banner { background: var(--black); color: #fff; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em; padding: 0.3rem 0.6rem; border-radius: 0; margin-bottom: 0.5rem; text-align: center; }
     .drop-zone img { width: 100%; height: 100%; object-fit: cover; }
     /* safe-area-label removed */
     .file-input { display: none; }
@@ -219,22 +224,22 @@
     .img-delete-btn { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 50%; background: rgba(0,0,0,0.55); border: none; color: #fff; font-size: 14px; line-height: 24px; text-align: center; cursor: pointer; z-index: 10; }
 
     .sleeve-toggle { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
-    .sleeve-option { flex: 1; padding: 1rem; border: 2px solid #e5e5e5; border-radius: 12px; background: #fff; cursor: pointer; text-align: center; transition: all 0.15s; }
-    .sleeve-option.selected { border-color: var(--orange); background: var(--orange-light); }
-    .sleeve-option-title { font-weight: 700; font-size: 0.95rem; }
-    .sleeve-option-sub { font-size: 0.75rem; color: #888; margin-top: 0.2rem; }
+    .sleeve-option { flex: 1; padding: 1rem; border: 2px solid #d0cfc0; border-radius: 0; background: var(--cream); cursor: pointer; text-align: center; transition: all 0.15s; }
+    .sleeve-option.selected { border-color: var(--black); background: var(--yellow); }
+    .sleeve-option-title { font-weight: 700; font-size: 0.95rem; font-family: 'Poppins', sans-serif; }
+    .sleeve-option-sub { font-size: 0.75rem; color: #666; margin-top: 0.2rem; }
 
-    .mode-toggle { display: flex; gap: 0; margin-bottom: 1rem; border-radius: 10px; overflow: hidden; border: 2px solid #e5e5e5; }
-    .mode-btn { flex: 1; padding: 0.65rem 1rem; background: #fff; border: none; font-size: 0.85rem; font-weight: 600; color: #666; cursor: pointer; transition: all 0.15s; text-align: center; }
-    .mode-btn.active { background: var(--orange); color: #fff; }
+    .mode-toggle { display: flex; gap: 0; margin-bottom: 1rem; border-radius: 0; overflow: hidden; border: 2px solid var(--black); }
+    .mode-btn { flex: 1; padding: 0.65rem 1rem; background: var(--cream); border: none; font-size: 0.85rem; font-weight: 600; color: #666; cursor: pointer; transition: all 0.15s; text-align: center; font-family: 'DM Sans', sans-serif; }
+    .mode-btn.active { background: var(--black); color: #fff; }
 
-    .csv-zone { border: 2px dashed #ccc; border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; background: #fafafa; transition: all 0.15s ease; }
-    .csv-zone:hover, .csv-zone.drag-over { border-color: var(--orange); background: var(--orange-light); }
+    .csv-zone { border: 2px dashed #aaa; border-radius: 0; padding: 2rem; text-align: center; cursor: pointer; background: #e8e7d8; transition: all 0.15s ease; }
+    .csv-zone:hover, .csv-zone.drag-over { border-color: var(--black); background: var(--yellow-light); }
     .csv-zone.has-error { border-color: var(--red-text); background: var(--red-bg); }
     .csv-icon { font-size: 2rem; margin-bottom: 0.75rem; }
-    .csv-title { font-weight: 600; margin-bottom: 0.25rem; }
+    .csv-title { font-weight: 700; margin-bottom: 0.25rem; font-family: 'Poppins', sans-serif; }
     .csv-sub { font-size: 0.85rem; color: #666; }
-    .csv-sub span { color: var(--orange); }
+    .csv-sub span { color: var(--black); font-weight: 700; }
     .csv-helper { font-size: 0.75rem; color: #999; margin-top: 0.5rem; line-height: 1.4; }
     .csv-error { margin-top: 0.75rem; padding: 0.75rem; background: var(--red-bg); border: 1px solid var(--red-border); border-radius: 8px; color: var(--red-text); font-size: 0.85rem; }
     .csv-success { margin-top: 1rem; padding: 1rem; background: var(--green-bg); border: 1px solid var(--green-border); border-radius: 8px; }
@@ -247,30 +252,30 @@
     .csv-warning strong { font-weight: 700; }
 
     .alt-url-box { margin-top: 0; }
-    .alt-url-input { width: 100%; padding: 0.75rem 1rem; border-radius: 8px; border: 2px solid #e5e5e5; font-size: 0.9rem; font-family: inherit; box-sizing: border-box; transition: border-color 0.15s; }
-    .alt-url-input:focus { outline: none; border-color: var(--orange); }
+    .alt-url-input { width: 100%; padding: 0.75rem 1rem; border-radius: 0; border: 2px solid #aaa; font-size: 0.9rem; font-family: 'DM Sans', sans-serif; box-sizing: border-box; transition: border-color 0.15s; background: var(--cream); }
+    .alt-url-input:focus { outline: none; border-color: var(--black); }
     .alt-url-hint { margin-top: 0.5rem; font-size: 0.75rem; color: #888; }
 
     .bandcamp-help { font-size: 0.9rem; color: #555; margin-bottom: 1rem; line-height: 1.7; }
-    .bandcamp-help a { color: var(--orange); text-decoration: none; font-weight: 600; }
+    .bandcamp-help a { color: var(--black); text-decoration: underline; font-weight: 700; }
     .bandcamp-help-bottom { margin-bottom: 1.5rem; }
 
     .qty-label { display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #666; margin-bottom: 0.5rem; }
-    .qty-input { width: 120px; padding: 0.5rem 0.75rem; border-radius: 8px; border: 2px solid #e5e5e5; font-size: 1rem; font-weight: 700; text-align: center; margin-bottom: 0.25rem; box-sizing: border-box; display: block; }
+    .qty-input { width: 120px; padding: 0.5rem 0.75rem; border-radius: 0; border: 2px solid var(--black); font-size: 1rem; font-weight: 700; text-align: center; margin-bottom: 0.25rem; box-sizing: border-box; display: block; background: var(--cream); font-family: 'DM Sans', sans-serif; }
     .qty-hint { font-size: 0.8rem; color: #666; margin-bottom: 1rem; line-height: 1.5; }
     .tier-buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
-    .tier-btn { padding: 0.4rem 0.75rem; border-radius: 20px; border: 2px solid #e5e5e5; background: #fff; color: #666; font-weight: 600; font-size: 0.75rem; cursor: pointer; transition: all 0.1s ease; }
-    .tier-btn.active { border-color: var(--orange); background: var(--orange-light); color: var(--orange); }
+    .tier-btn { padding: 0.4rem 0.75rem; border-radius: 0; border: 2px solid #aaa; background: var(--cream); color: #666; font-weight: 600; font-size: 0.75rem; cursor: pointer; transition: all 0.1s ease; font-family: 'DM Sans', sans-serif; }
+    .tier-btn.active { border-color: var(--black); background: var(--yellow); color: var(--black); }
 
-    .pricing-box { padding: 1rem; background: #f8f8f8; border-radius: 8px; border: 1px solid #e5e5e5; }
+    .pricing-box { padding: 1rem; background: #e8e7d8; border-radius: 0; border: 2px solid var(--black); }
     .pricing-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.25rem; }
     .pricing-per { font-size: 0.8rem; color: #666; }
     .pricing-tier { font-size: 0.7rem; color: #999; }
     .pricing-total { font-size: 1.75rem; font-weight: 800; }
     .pricing-total-label { font-size: 0.8rem; color: #666; font-weight: 400; }
 
-    .summary-row { display: flex; justify-content: space-between; align-items: center; padding: 0.85rem 1rem; background: #f8f8f8; border-radius: 8px; font-size: 0.9rem; }
-    .summary-row.bold { background: #1a1a1a; color: #fff; font-weight: 700; font-size: 1.1rem; }
+    .summary-row { display: flex; justify-content: space-between; align-items: center; padding: 0.85rem 1rem; background: #e8e7d8; border-radius: 0; font-size: 0.9rem; border: 1px solid #d0cfc0; }
+    .summary-row.bold { background: var(--black); color: #fff; font-weight: 700; font-size: 1.1rem; border-color: var(--black); }
     .summary-row.warn { color: var(--red-text); background: var(--red-bg); }
     .summary-rows { display: grid; gap: 0.75rem; margin-bottom: 1.5rem; }
     .summary-warning { margin-bottom: 1rem; padding: 0.85rem 1rem; background: var(--red-bg); border: 1px solid var(--red-border); border-radius: 8px; color: var(--red-text); font-size: 0.85rem; }
@@ -281,11 +286,11 @@
       .btn-row { flex-direction: column-reverse; }
       .btn-row .btn { width: 100%; text-align: center; padding: 0.9rem 1.5rem; }
     }
-    .btn { padding: 0.7rem 1.5rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.15s; border: none; }
-    .btn-back { background: #fff; color: #666; border: 2px solid #e5e5e5; }
-    .btn-primary { background: var(--orange); color: #fff; }
-    .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
-    .btn-primary:hover:not(:disabled) { background: #d05d00; }
+    .btn { padding: 0.7rem 1.5rem; border-radius: 0; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.15s; border: 2px solid var(--black); font-family: 'DM Sans', sans-serif; }
+    .btn-back { background: var(--cream); color: var(--black); border: 2px solid var(--black); }
+    .btn-primary { background: var(--yellow); color: var(--black); }
+    .btn-primary:disabled { background: #d0cfc0; border-color: #aaa; color: #888; cursor: not-allowed; }
+    .btn-primary:hover:not(:disabled) { background: #f0b800; }
     .btn-order { padding: 0.85rem 2rem; font-size: 1rem; }
 
     .step { display: none; }
@@ -295,16 +300,16 @@
     .order-success-icon { font-size: 4rem; margin-bottom: 1rem; }
     .order-success h2 { font-size: 1.8rem; margin-bottom: 0.5rem; }
     .order-success p { color: #666; margin-bottom: 1.5rem; }
-    .order-success-detail { display: inline-block; padding: 0.75rem 1.5rem; background: #f8f8f8; border-radius: 8px; font-size: 0.9rem; color: #666; margin-bottom: 1.5rem; }
+    .order-success-detail { display: inline-block; padding: 0.75rem 1.5rem; background: #e8e7d8; border: 2px solid var(--black); border-radius: 0; font-size: 0.9rem; color: #666; margin-bottom: 1.5rem; }
 
     .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .step-subtitle { font-size: 0.9rem; color: #777; margin-bottom: 1rem; line-height: 1.6; }
 
     /* crop modal CSS removed */
-    .sleeve-review-row { margin-bottom: 1.25rem; padding: 1rem; background: var(--orange-light); border: 2px solid var(--orange); border-radius: 10px; }
-    .sleeve-checkbox-label { display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
-    .sleeve-checkbox-label input[type=checkbox] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--orange); }
+    .sleeve-review-row { margin-bottom: 1.25rem; padding: 1rem; background: var(--yellow-light); border: 2px solid var(--black); border-radius: 0; }
+    .sleeve-checkbox-label { display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; font-weight: 700; cursor: pointer; }
+    .sleeve-checkbox-label input[type=checkbox] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--black); }
     .sleeve-checkbox-sub { font-size: 0.78rem; color: #666; font-weight: 400; margin-top: 0.25rem; margin-left: 1.7rem; }
   </style>
 </head>
