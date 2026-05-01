@@ -36,17 +36,40 @@
       min-height: 100vh;
     }
 
-    .header {
+    .page-header {
       border-bottom: 2px solid var(--black);
       padding: 1rem 2rem;
-      display: flex;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
       align-items: center;
       gap: 1rem;
       background: var(--cream);
+      position: sticky;
+      top: 0;
+      z-index: 200;
     }
-    .header-brand { font-size: 1.1rem; font-weight: 800; font-family: 'Poppins', sans-serif; color: var(--black); letter-spacing: -0.02em; }
-    .header-sep { color: #aaa; }
-    .header-page { font-weight: 600; color: var(--text); }
+    .page-header .step-bar-wrapper {
+      width: 320px;
+      margin: 0;
+      justify-self: center;
+    }
+    .back-link {
+      justify-self: start;
+      font-size: 0.85rem;
+      color: var(--text);
+      text-decoration: none;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .back-link:hover { text-decoration: underline; }
+    @media (max-width: 768px) {
+      .page-header { grid-template-columns: auto 1fr; padding: 0.75rem 1rem; }
+      .page-header .step-bar-wrapper { width: auto; justify-self: stretch; }
+    }
 
     .layout {
       max-width: 1100px;
@@ -62,16 +85,13 @@
       .layout { grid-template-columns: 1fr; padding: 1rem; gap: 0; }
       .preview-panel {
         order: -1;
-        position: sticky;
-        top: 0;
-        z-index: 100;
         background: var(--cream);
         padding-bottom: 0.5rem;
       }
       .config-panel { order: 1; padding-top: 1rem; }
     }
 
-    .preview-panel { position: sticky; top: 2rem; }
+    .preview-panel { position: sticky; top: 6rem; }
 
     .goodz-preview {
       background: #e8e7d8;
@@ -85,14 +105,6 @@
     }
     @media (max-width: 768px) {
       .goodz-preview { padding: 0.5rem 0.75rem; gap: 0.4rem; }
-    }
-
-    .preview-label {
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: #999;
     }
 
     .card {
@@ -109,9 +121,31 @@
       flex-direction: column;
       gap: 0.25rem;
     }
+    .card.card-upload {
+      width: 220px;
+      height: 220px;
+      background: #e8e7d8;
+      border: 2px dashed #aaa;
+      box-shadow: none;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .card.card-upload:hover,
+    .card.card-upload.drag-over {
+      border-color: var(--black);
+      background: var(--yellow-light);
+    }
+    .card.card-upload.has-art {
+      background: #111;
+      border-color: transparent;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25), inset 0 0 0 2px rgba(255,255,255,0.1);
+    }
+    .card.card-upload.has-art:hover { background: #111; }
+    .card-upload-icon { font-size: 2.4rem; margin-bottom: 0.4rem; }
+    .card-upload-cta { font-weight: 700; color: var(--black); font-size: 0.9rem; }
 
     .card.has-art { background: transparent; }
-    .card-placeholder-text { font-size: 0.6rem; color: #666; text-align: center; line-height: 1.4; }
+    .card-placeholder-text { font-size: 0.75rem; color: #555; text-align: center; line-height: 1.4; padding: 0 1rem; }
     .zone-guide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; z-index: 10; opacity: 0.65; border-radius: inherit; }
     .card-art { width: 100%; height: 100%; object-fit: cover; }
 
@@ -178,7 +212,7 @@
     .config-panel h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: 0.25rem; font-family: 'Poppins', sans-serif; text-transform: uppercase; letter-spacing: -0.01em; }
     .config-panel > p { color: #666; font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.6; }
 
-    .step-bar-wrapper { margin-bottom: 1.75rem; }
+    .step-bar-wrapper { margin: 0; }
     .step-bar { display: flex; gap: 0.25rem; margin-bottom: 0.4rem; }
     .step-segment { flex: 1; height: 4px; border-radius: 0; background: #d0cfc0; transition: background 0.2s; cursor: default; }
     .step-segment.done, .step-segment.active { background: var(--black); }
@@ -315,22 +349,38 @@
 </head>
 <body>
 
-<div class="header">
-  <div class="header-brand">Goodz</div>
-  <div class="header-sep">/</div>
-  <div class="header-page">Order Custom Goodz for your Bandcamp Music</div>
-</div>
+<header class="page-header">
+  <button type="button" class="back-link" onclick="history.back()">← Edit options</button>
+  <div class="step-bar-wrapper" id="step-bar-wrapper">
+    <div class="step-bar">
+      <div class="step-segment active" data-step="0" onclick="handleStepClick(0)"></div>
+      <div class="step-segment" data-step="1" onclick="handleStepClick(1)"></div>
+      <div class="step-segment" data-step="2" onclick="handleStepClick(2)"></div>
+      <div class="step-segment" data-step="3" onclick="handleStepClick(3)"></div>
+    </div>
+    <div class="step-labels">
+      <span data-step-label="0" class="active">Art</span>
+      <span data-step-label="1">Music</span>
+      <span data-step-label="2">Qty</span>
+      <span data-step-label="3">Review</span>
+    </div>
+  </div>
+  <div></div>
+</header>
 
 <div class="layout">
   <div class="preview-panel">
     <div class="goodz-preview">
-      <div class="preview-label">Live Preview</div>
-
       <div id="card-wrap">
-        <div class="card" id="card">
-          <div id="card-placeholder" class="card-placeholder-text">Your art will appear here<br><span style="color:#555">Upload art →</span></div>
+        <div class="card card-upload" id="card">
+          <div id="card-placeholder" class="card-placeholder-text">
+            <div class="card-upload-icon">🖼️</div>
+            <div class="card-upload-cta">Tap to upload artwork</div>
+            <div style="font-size:0.7rem;color:#888;margin-top:0.3rem;">PNG or TIFF</div>
+          </div>
           <img id="card-art" class="card-art" style="display:none" src="" alt="Card face">
           <img id="zone-guide" class="zone-guide" src="card-template.png" alt="" style="display:none">
+          <button class="img-delete-btn" id="img-delete-btn" type="button" style="display:none" onclick="clearImage(event)" aria-label="Remove artwork">×</button>
         </div>
       </div>
 
@@ -355,43 +405,13 @@
 
   <div class="config-panel">
 
-    <!-- Step indicator -->
-    <div class="step-bar-wrapper" id="step-bar-wrapper">
-      <div class="step-bar">
-        <div class="step-segment active" data-step="0" onclick="handleStepClick(0)"></div>
-        <div class="step-segment" data-step="1" onclick="handleStepClick(1)"></div>
-        <div class="step-segment" data-step="2" onclick="handleStepClick(2)"></div>
-        <div class="step-segment" data-step="3" onclick="handleStepClick(3)"></div>
-      </div>
-      <div class="step-labels">
-        <span data-step-label="0" class="active">Art</span>
-        <span data-step-label="1">Music</span>
-        <span data-step-label="2">Qty</span>
-        <span data-step-label="3">Review</span>
-      </div>
-    </div>
-
     <!-- STEP 0: Artwork -->
     <div class="step active" id="step-0">
-      <h2>Upload your album artwork</h2>
-      <p>This will be printed on the front of each of your Goodz.</p>
+      <h2>Upload your artwork</h2>
+      <p>Tap the Goodz preview to choose your file. Printed on the front of each Goodz at 300 DPI · RGB · PNG or TIFF.</p>
 
-      <div class="upload-grid">
-        <div class="upload-box">
-          <label class="upload-label">Album Art (Front)</label>
-          <div class="drop-zone" id="drop-front" onclick="document.getElementById('input-front').click()">
-            <div class="drop-zone-content" id="front-placeholder">
-              <div class="drop-zone-req-banner">300 DPI · RGB · PNG or TIFF</div>
-              <div class="drop-zone-icon">🖼️</div>
-              <div class="drop-zone-text">Drop image or<br><span>click to browse</span></div>
-            </div>
-            <img id="front-preview" style="display:none" src="" alt="Front preview">
-            <button class="img-delete-btn" id="img-delete-btn" style="display:none" onclick="clearImage(event)">×</button>
-          </div>
-          <input type="file" id="input-front" class="file-input" accept=".png,.tiff,.tif">
-          <div class="file-name" id="front-name"></div>
-        </div>
-      </div>
+      <input type="file" id="input-front" class="file-input" accept=".png,.tiff,.tif">
+      <div class="file-name" id="front-name"></div>
 
       <div class="btn-row">
         <div></div>
@@ -602,35 +622,21 @@ let state = {
   currentStep: 0,
 };
 
-function repositionStepBar() {
-  const stepBar = document.getElementById('step-bar-wrapper');
-  const previewPanel = document.querySelector('.preview-panel');
-  const configPanel = document.querySelector('.config-panel');
-  if (!stepBar || !previewPanel || !configPanel) return;
-  if (window.innerWidth <= 768) {
-    if (stepBar.parentElement !== previewPanel) {
-      previewPanel.appendChild(stepBar);
-    }
-  } else {
-    if (stepBar.parentElement !== configPanel) {
-      configPanel.insertBefore(stepBar, configPanel.firstChild);
-    }
-  }
-}
-
 function init() {
   renderTierButtons();
-  setupDragDrop('drop-front', 'input-front', handleFrontFile);
+  setupDragDrop('card', 'input-front', handleFrontFile);
   setupDragDropCSV();
   setupFileInput('input-front', handleFrontFile);
   setupFileInput('input-csv', handleCSV);
+  document.getElementById('card').addEventListener('click', e => {
+    if (e.target.closest('#img-delete-btn')) return;
+    document.getElementById('input-front').click();
+  });
   document.getElementById('qty-input').addEventListener('input', handleQtyChange);
   document.getElementById('qty-input').addEventListener('blur', handleQtyBlur);
   renderStep(0);
   updatePricing();
   updateSleeveCheckboxDisplay();
-  repositionStepBar();
-  window.addEventListener('resize', repositionStepBar);
 }
 
 function renderTierButtons() {
@@ -722,9 +728,6 @@ function handleFrontFile(file) {
   }
   readFileAsDataURL(file, dataUrl => {
     state.frontArt = dataUrl;
-    document.getElementById('front-preview').src = dataUrl;
-    document.getElementById('front-preview').style.display = 'block';
-    document.getElementById('front-placeholder').style.display = 'none';
     document.getElementById('front-name').textContent = file.name;
     document.getElementById('img-delete-btn').style.display = 'block';
     updateCardPreview();
@@ -767,9 +770,6 @@ function clearImage(e) {
   e.stopPropagation();
   state.frontArt = null;
   state.bandcampCSVUrl = null;
-  document.getElementById('front-preview').style.display = 'none';
-  document.getElementById('front-preview').src = '';
-  document.getElementById('front-placeholder').style.display = 'flex';
   document.getElementById('front-name').textContent = '';
   document.getElementById('img-delete-btn').style.display = 'none';
   document.getElementById('input-front').value = '';
@@ -1181,9 +1181,6 @@ function placeOrder() {
 
 function resetBuilder() {
   state = { frontArt: null, bandcampCSVUrl: null, uploadingCSV: false, hasSleeve: false, bandcampMode: 'csv', bandcampURLs: [], altURL: '', quantity: 50, currentStep: 0 };
-  document.getElementById('front-preview').style.display = 'none';
-  document.getElementById('front-preview').src = '';
-  document.getElementById('front-placeholder').style.display = 'flex';
   document.getElementById('front-name').textContent = '';
   document.getElementById('img-delete-btn').style.display = 'none';
   document.getElementById('sleeve-wrap').style.display = 'none';
